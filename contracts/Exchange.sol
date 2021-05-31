@@ -12,9 +12,9 @@ contract Exchange {
         tokenAddress = _token;
     }
 
-    function addLiquidity(uint256 _token_amount) public payable {
+    function addLiquidity(uint256 _tokenAmount) public payable {
         IERC20 token = IERC20(tokenAddress);
-        token.transferFrom(msg.sender, address(this), _token_amount);
+        token.transferFrom(msg.sender, address(this), _tokenAmount);
     }
 
     function getReserve() public view returns (uint256) {
