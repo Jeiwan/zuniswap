@@ -2,6 +2,8 @@ const { expect } = require("chai");
 
 const toWei = (value) => ethers.utils.parseEther(value.toString());
 
+const fromWei = (value) => ethers.utils.formatEther(value);
+
 describe("Exchange", () => {
   let owner;
   let exchange;
@@ -42,21 +44,35 @@ describe("Exchange", () => {
     });
   });
 
-  describe("getEthToTokenPrice", async () => {
+  describe("getTokenAmount", async () => {
     it("returns correct exchange price", async () => {
       await token.approve(exchange.address, toWei(2000));
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
-      expect(await exchange.getEthToTokenPrice(toWei(1))).to.equal(2000);
+      let tokensOut = await exchange.getTokenAmount(toWei(1));
+      expect(fromWei(tokensOut)).to.equal("1.998001998001998001");
+
+      tokensOut = await exchange.getTokenAmount(toWei(100));
+      expect(fromWei(tokensOut)).to.equal("181.818181818181818181");
+
+      tokensOut = await exchange.getTokenAmount(toWei(1000));
+      expect(fromWei(tokensOut)).to.equal("1000.0");
     });
   });
 
-  describe("getTokenToEthPrice", async () => {
+  describe("getEthAmount", async () => {
     it("returns correct exchange price", async () => {
       await token.approve(exchange.address, toWei(2000));
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
-      expect(await exchange.getTokenToEthPrice(toWei(2))).to.equal(500);
+      let ethOut = await exchange.getEthAmount(toWei(2));
+      expect(fromWei(ethOut)).to.equal("0.999000999000999");
+
+      ethOut = await exchange.getEthAmount(toWei(100));
+      expect(fromWei(ethOut)).to.equal("47.619047619047619047");
+
+      ethOut = await exchange.getEthAmount(toWei(2000));
+      expect(fromWei(ethOut)).to.equal("500.0");
     });
   });
 });
