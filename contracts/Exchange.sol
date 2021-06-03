@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
 
 contract Exchange {
     address public tokenAddress;
@@ -35,6 +36,35 @@ contract Exchange {
         uint256 tokenReserve = getReserve();
 
         return getAmount(_tokenSold, tokenReserve, address(this).balance);
+    }
+
+    function ethToTokenSwap(uint256 _minTokens) public payable {
+        uint256 tokenReserve = getReserve();
+        uint256 tokensBought =
+            getAmount(
+                msg.value,
+                address(this).balance - msg.value,
+                tokenReserve
+            );
+
+        require(tokensBought >= _minTokens, "insufficient output amount");
+
+        IERC20(tokenAddress).transfer(msg.sender, tokensBought);
+    }
+
+    function tokenToEthSwap(uint256 _tokensSold, uint256 _minEth) public {
+        uint256 tokenReserve = getReserve();
+        uint256 ethBought =
+            getAmount(_tokensSold, tokenReserve, address(this).balance);
+
+        require(ethBought >= _minEth, "insufficient output amount");
+
+        IERC20(tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            _tokensSold
+        );
+        payable(msg.sender).transfer(ethBought);
     }
 
     function getAmount(
