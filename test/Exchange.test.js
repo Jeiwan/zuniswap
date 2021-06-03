@@ -50,7 +50,7 @@ describe("Exchange", () => {
   });
 
   describe("getTokenAmount", async () => {
-    it("returns correct exchange price", async () => {
+    it("returns correct token amount", async () => {
       await token.approve(exchange.address, toWei(2000));
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
@@ -66,7 +66,7 @@ describe("Exchange", () => {
   });
 
   describe("getEthAmount", async () => {
-    it("returns correct exchange price", async () => {
+    it("returns correct ether amount", async () => {
       await token.approve(exchange.address, toWei(2000));
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
