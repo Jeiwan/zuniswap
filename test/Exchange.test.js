@@ -29,6 +29,9 @@ describe("Exchange", () => {
 
   it("is deployed", async () => {
     expect(await exchange.deployed()).to.equal(exchange);
+    expect(await exchange.name()).to.equal("Zuniswap-V1");
+    expect(await exchange.symbol()).to.equal("ZUNI-V1");
+    expect(await exchange.totalSupply()).to.equal(toWei(0));
   });
 
   describe("addLiquidity", async () => {
@@ -39,6 +42,14 @@ describe("Exchange", () => {
 
         expect(await getBalance(exchange.address)).to.equal(toWei(100));
         expect(await exchange.getReserve()).to.equal(toWei(200));
+      });
+
+      it("mints LP tokens", async () => {
+        await token.approve(exchange.address, toWei(200));
+        await exchange.addLiquidity(toWei(200), { value: toWei(100) });
+
+        expect(await exchange.balanceOf(owner.address)).to.eq(toWei(100));
+        expect(await exchange.totalSupply()).to.eq(toWei(100));
       });
 
       it("allows zero amounts", async () => {
@@ -61,6 +72,13 @@ describe("Exchange", () => {
 
         expect(await getBalance(exchange.address)).to.equal(toWei(150));
         expect(await exchange.getReserve()).to.equal(toWei(300));
+      });
+
+      it("mints LP tokens", async () => {
+        await exchange.addLiquidity(toWei(200), { value: toWei(50) });
+
+        expect(await exchange.balanceOf(owner.address)).to.eq(toWei(150));
+        expect(await exchange.totalSupply()).to.eq(toWei(150));
       });
 
       it("fails when not enough tokens", async () => {
