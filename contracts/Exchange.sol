@@ -13,8 +13,17 @@ contract Exchange {
     }
 
     function addLiquidity(uint256 _tokenAmount) public payable {
-        IERC20 token = IERC20(tokenAddress);
-        token.transferFrom(msg.sender, address(this), _tokenAmount);
+        if (getReserve() == 0) {
+            IERC20 token = IERC20(tokenAddress);
+            token.transferFrom(msg.sender, address(this), _tokenAmount);
+        } else {
+            uint256 ethReserve = address(this).balance - msg.value;
+            uint256 tokenReserve = getReserve();
+            uint256 tokenAmount = (msg.value * tokenReserve) / ethReserve;
+            require(_tokenAmount >= tokenAmount, "insufficient token amount");
+            IERC20 token = IERC20(tokenAddress);
+            token.transferFrom(msg.sender, address(this), tokenAmount);
+        }
     }
 
     function getReserve() public view returns (uint256) {
