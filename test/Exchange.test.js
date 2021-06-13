@@ -158,13 +158,13 @@ describe("Exchange", () => {
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
       let tokensOut = await exchange.getTokenAmount(toWei(1));
-      expect(fromWei(tokensOut)).to.equal("1.998001998001998001");
+      expect(fromWei(tokensOut)).to.equal("1.978041738678708079");
 
       tokensOut = await exchange.getTokenAmount(toWei(100));
-      expect(fromWei(tokensOut)).to.equal("181.818181818181818181");
+      expect(fromWei(tokensOut)).to.equal("180.1637852593266606");
 
       tokensOut = await exchange.getTokenAmount(toWei(1000));
-      expect(fromWei(tokensOut)).to.equal("1000.0");
+      expect(fromWei(tokensOut)).to.equal("994.974874371859296482");
     });
   });
 
@@ -174,13 +174,13 @@ describe("Exchange", () => {
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
       let ethOut = await exchange.getEthAmount(toWei(2));
-      expect(fromWei(ethOut)).to.equal("0.999000999000999");
+      expect(fromWei(ethOut)).to.equal("0.989020869339354039");
 
       ethOut = await exchange.getEthAmount(toWei(100));
-      expect(fromWei(ethOut)).to.equal("47.619047619047619047");
+      expect(fromWei(ethOut)).to.equal("47.16531681753215817");
 
       ethOut = await exchange.getEthAmount(toWei(2000));
-      expect(fromWei(ethOut)).to.equal("500.0");
+      expect(fromWei(ethOut)).to.equal("497.487437185929648241");
     });
   });
 
@@ -195,33 +195,33 @@ describe("Exchange", () => {
 
       await exchange
         .connect(user)
-        .ethToTokenSwap(toWei(1.99), { value: toWei(1) });
+        .ethToTokenSwap(toWei(1.97), { value: toWei(1) });
 
       const userBalanceAfter = await getBalance(user.address);
       expect(fromWei(userBalanceAfter.sub(userBalanceBefore))).to.equal(
-        "-1.000000000061016"
+        "-1.000000000061475"
       );
 
       const userTokenBalance = await token.balanceOf(user.address);
-      expect(fromWei(userTokenBalance)).to.equal("1.998001998001998001");
+      expect(fromWei(userTokenBalance)).to.equal("1.978041738678708079");
 
       const exchangeEthBalance = await getBalance(exchange.address);
       expect(fromWei(exchangeEthBalance)).to.equal("1001.0");
 
       const exchangeTokenBalance = await token.balanceOf(exchange.address);
-      expect(fromWei(exchangeTokenBalance)).to.equal("1998.001998001998001999");
+      expect(fromWei(exchangeTokenBalance)).to.equal("1998.021958261321291921");
     });
 
     it("affects exchange rate", async () => {
       let tokensOut = await exchange.getTokenAmount(toWei(10));
-      expect(fromWei(tokensOut)).to.equal("19.80198019801980198");
+      expect(fromWei(tokensOut)).to.equal("19.605901574413308248");
 
       await exchange
         .connect(user)
         .ethToTokenSwap(toWei(9), { value: toWei(10) });
 
       tokensOut = await exchange.getTokenAmount(toWei(10));
-      expect(fromWei(tokensOut)).to.equal("19.413706076490001941");
+      expect(fromWei(tokensOut)).to.equal("19.223356774598792281");
     });
 
     it("fails when output amount is less than min amount", async () => {
@@ -263,7 +263,7 @@ describe("Exchange", () => {
 
       const userBalanceAfter = await getBalance(user.address);
       expect(fromWei(userBalanceAfter.sub(userBalanceBefore))).to.equal(
-        "0.999000998941939"
+        "0.989020869279835039"
       );
 
       const userTokenBalance = await token.balanceOf(user.address);
@@ -271,7 +271,7 @@ describe("Exchange", () => {
 
       const exchangeBalanceAfter = await getBalance(exchange.address);
       expect(fromWei(exchangeBalanceAfter.sub(exchangeBalanceBefore))).to.equal(
-        "-0.999000999000999"
+        "-0.989020869339354039"
       );
 
       const exchangeTokenBalance = await token.balanceOf(exchange.address);
@@ -280,12 +280,12 @@ describe("Exchange", () => {
 
     it("affects exchange rate", async () => {
       let ethOut = await exchange.getEthAmount(toWei(20));
-      expect(fromWei(ethOut)).to.equal("9.90099009900990099");
+      expect(fromWei(ethOut)).to.equal("9.802950787206654124");
 
       await exchange.connect(user).tokenToEthSwap(toWei(20), toWei(9));
 
       ethOut = await exchange.getEthAmount(toWei(20));
-      expect(fromWei(ethOut)).to.equal("9.70685303824500097");
+      expect(fromWei(ethOut)).to.equal("9.61167838729939614");
     });
 
     it("fails when output amount is less than min amount", async () => {
@@ -300,7 +300,7 @@ describe("Exchange", () => {
 
       const userBalanceAfter = await getBalance(user.address);
       expect(fromWei(userBalanceAfter.sub(userBalanceBefore))).to.equal(
-        "-0.000000000043816"
+        "-0.000000000044275"
       );
 
       const userTokenBalance = await token.balanceOf(user.address);
