@@ -142,6 +142,7 @@ describe("Exchange", () => {
 
     it("transfers at least min amount of tokens", async () => {
       const userBalanceBefore = await getBalance(user.address);
+      const exchangeBalanceBefore = await getBalance(exchange.address);
 
       await exchange.connect(user).tokenToEthSwap(toWei(2), toWei(0.9));
 
@@ -153,8 +154,10 @@ describe("Exchange", () => {
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.equal("0.0");
 
-      const exchangeEthBalance = await getBalance(exchange.address);
-      expect(fromWei(exchangeEthBalance)).to.equal("999.000999000999001");
+      const exchangeBalanceAfter = await getBalance(exchange.address);
+      expect(fromWei(exchangeBalanceAfter - exchangeBalanceBefore)).to.equal(
+        "-0.9990009990010634"
+      );
 
       const exchangeTokenBalance = await token.balanceOf(exchange.address);
       expect(fromWei(exchangeTokenBalance)).to.equal("2002.0");
@@ -167,10 +170,13 @@ describe("Exchange", () => {
     });
 
     it("allows zero swaps", async () => {
+      const userBalanceBefore = await getBalance(user.address);
       await exchange.connect(user).tokenToEthSwap(toWei(0), toWei(0));
 
-      const userBalance = await getBalance(user.address);
-      expect(fromWei(userBalance)).to.equal("9999.995994295000999");
+      const userBalanceAfter = await getBalance(user.address);
+      expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
+        "-0.00035015200079872"
+      );
 
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.equal("2.0");
