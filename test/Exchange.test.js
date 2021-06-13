@@ -89,6 +89,41 @@ describe("Exchange", () => {
     });
   });
 
+  describe("removeLiquidity", async () => {
+    beforeEach(async () => {
+      await token.approve(exchange.address, toWei(300));
+      await exchange.addLiquidity(toWei(200), { value: toWei(100) });
+    });
+
+    it("removes some liquidity", async () => {
+      await exchange.removeLiquidity(toWei(25));
+
+      expect(await exchange.getReserve()).to.equal(toWei(150));
+      expect(await getBalance(exchange.address)).to.equal(toWei(75));
+    });
+
+    it("removes all liquidity", async () => {
+      await exchange.removeLiquidity(toWei(100));
+
+      expect(await exchange.getReserve()).to.equal(toWei(0));
+      expect(await getBalance(exchange.address)).to.equal(toWei(0));
+    });
+
+    it("burns LP-tokens", async () => {
+      await expect(() =>
+        exchange.removeLiquidity(toWei(25))
+      ).to.changeTokenBalance(exchange, owner, toWei(-25));
+
+      expect(await exchange.totalSupply()).to.equal(toWei(75));
+    });
+
+    it("doesn't allow invalid amount", async () => {
+      await expect(exchange.removeLiquidity(toWei(100.1))).to.be.revertedWith(
+        "burn amount exceeds balance"
+      );
+    });
+  });
+
   describe("getTokenAmount", async () => {
     it("returns correct token amount", async () => {
       await token.approve(exchange.address, toWei(2000));
