@@ -80,12 +80,11 @@ contract Exchange is ERC20 {
 
     function ethToTokenSwap(uint256 _minTokens) public payable {
         uint256 tokenReserve = getReserve();
-        uint256 tokensBought =
-            getAmount(
-                msg.value,
-                address(this).balance - msg.value,
-                tokenReserve
-            );
+        uint256 tokensBought = getAmount(
+            msg.value,
+            address(this).balance - msg.value,
+            tokenReserve
+        );
 
         require(tokensBought >= _minTokens, "insufficient output amount");
 
@@ -94,8 +93,11 @@ contract Exchange is ERC20 {
 
     function tokenToEthSwap(uint256 _tokensSold, uint256 _minEth) public {
         uint256 tokenReserve = getReserve();
-        uint256 ethBought =
-            getAmount(_tokensSold, tokenReserve, address(this).balance);
+        uint256 ethBought = getAmount(
+            _tokensSold,
+            tokenReserve,
+            address(this).balance
+        );
 
         require(ethBought >= _minEth, "insufficient output amount");
 
