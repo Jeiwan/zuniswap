@@ -4,6 +4,18 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface IExchange {
+    function ethToTokenSwap(uint256 _minTokens) external payable;
+
+    function ethToTokenTransfer(uint256 _minTokens, address _recipient)
+        external
+        payable;
+}
+
+interface IFactory {
+    function getExchange(address _tokenAddress) external returns (address);
+}
+
 contract Exchange is ERC20 {
     address public tokenAddress;
     address public factoryAddress;
@@ -80,7 +92,7 @@ contract Exchange is ERC20 {
         return getAmount(_tokenSold, tokenReserve, address(this).balance);
     }
 
-    function ethToTokenSwap(uint256 _minTokens) public payable {
+    function ethToToken(uint256 _minTokens, address recipient) private {
         uint256 tokenReserve = getReserve();
         uint256 tokensBought = getAmount(
             msg.value,
@@ -90,7 +102,18 @@ contract Exchange is ERC20 {
 
         require(tokensBought >= _minTokens, "insufficient output amount");
 
-        IERC20(tokenAddress).transfer(msg.sender, tokensBought);
+        IERC20(tokenAddress).transfer(recipient, tokensBought);
+    }
+
+    function ethToTokenTransfer(uint256 _minTokens, address _recipient)
+        public
+        payable
+    {
+        ethToToken(_minTokens, _recipient);
+    }
+
+    function ethToTokenSwap(uint256 _minTokens) public payable {
+        ethToToken(_minTokens, msg.sender);
     }
 
     function tokenToEthSwap(uint256 _tokensSold, uint256 _minEth) public {
@@ -109,6 +132,38 @@ contract Exchange is ERC20 {
             _tokensSold
         );
         payable(msg.sender).transfer(ethBought);
+    }
+
+    function tokenToTokenSwap(
+        uint256 _tokensSold,
+        uint256 _minTokensBought,
+        address _tokenAddress
+    ) public {
+        address exchangeAddress = IFactory(factoryAddress).getExchange(
+            _tokenAddress
+        );
+        require(
+            exchangeAddress != address(this) && exchangeAddress != address(0),
+            "invalid exchange address"
+        );
+
+        uint256 tokenReserve = getReserve();
+        uint256 ethBought = getAmount(
+            _tokensSold,
+            tokenReserve,
+            address(this).balance
+        );
+
+        IERC20(tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            _tokensSold
+        );
+
+        IExchange(exchangeAddress).ethToTokenTransfer{value: ethBought}(
+            _minTokensBought,
+            msg.sender
+        );
     }
 
     function getAmount(
