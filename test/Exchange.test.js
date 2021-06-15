@@ -32,6 +32,7 @@ describe("Exchange", () => {
     expect(await exchange.name()).to.equal("Zuniswap-V1");
     expect(await exchange.symbol()).to.equal("ZUNI-V1");
     expect(await exchange.totalSupply()).to.equal(toWei(0));
+    expect(await exchange.factoryAddress()).to.equal(owner.address);
   });
 
   describe("addLiquidity", async () => {

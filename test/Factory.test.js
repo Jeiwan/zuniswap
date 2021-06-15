@@ -39,6 +39,7 @@ describe("Factory", () => {
       const exchange = await Exchange.attach(exchangeAddress);
       expect(await exchange.name()).to.equal("Zuniswap-V1");
       expect(await exchange.symbol()).to.equal("ZUNI-V1");
+      expect(await exchange.factoryAddress()).to.equal(factory.address);
     });
 
     it("doesn't allow zero address", async () => {
