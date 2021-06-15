@@ -56,4 +56,17 @@ describe("Factory", () => {
       );
     });
   });
+
+  describe("getExchange", () => {
+    it("returns exchange address by token address", async () => {
+      const exchangeAddress = await factory.callStatic.createExchange(
+        token.address
+      );
+      await factory.createExchange(token.address);
+
+      expect(await factory.getExchange(token.address)).to.equal(
+        exchangeAddress
+      );
+    });
+  });
 });
