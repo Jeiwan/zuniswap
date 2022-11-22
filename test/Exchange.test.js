@@ -90,14 +90,15 @@ describe("Exchange", () => {
     it("transfers at least min amount of tokens", async () => {
       const userBalanceBefore = await getBalance(user.address);
 
-      await exchange
+      const tx = await exchange
         .connect(user)
         .ethToTokenSwap(toWei(1.99), { value: toWei(1) });
+        
+      const receipt = await tx.wait();
+      const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
 
       const userBalanceAfter = await getBalance(user.address);
-      expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
-        "-1.0004877520006021"
-      );
+      expect(userBalanceAfter).to.equal(userBalanceBefore.sub(toWei(1)).sub(gasUsed));
 
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.equal("1.998001998001998001");
@@ -146,8 +147,8 @@ describe("Exchange", () => {
       await exchange.connect(user).tokenToEthSwap(toWei(2), toWei(0.9));
 
       const userBalanceAfter = await getBalance(user.address);
-      expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
-        "0.9987649429999452"
+      expect(userBalanceAfter.sub(userBalanceBefore)).to.gte(
+        ethers.utils.parseEther("0.9")
       );
 
       const userTokenBalance = await token.balanceOf(user.address);
@@ -167,10 +168,14 @@ describe("Exchange", () => {
     });
 
     it("allows zero swaps", async () => {
-      await exchange.connect(user).tokenToEthSwap(toWei(0), toWei(0));
+      const userBalanceBefore = await getBalance(user.address);
 
-      const userBalance = await getBalance(user.address);
-      expect(fromWei(userBalance)).to.equal("9999.995994295000999");
+      const tx = await exchange.connect(user).tokenToEthSwap(toWei(0), toWei(0));
+      const receipt = await tx.wait();
+      const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+
+      const userBalanceAfter = await getBalance(user.address);
+      expect(userBalanceAfter).to.equal(userBalanceBefore.sub(gasUsed));
 
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.equal("2.0");
